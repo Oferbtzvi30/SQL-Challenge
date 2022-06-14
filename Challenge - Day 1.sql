@@ -76,27 +76,27 @@ WHERE AMOUNT = (SELECT MAX(AMOUNT) FROM "ITEM")
 --------------------------------------------------------------------------------
 
 
-			WITH "RANK-ORDER" AS 
-						(
-						SELECT
-							S.customer_id,
-							M.PRODUCT_NAME,
-							COUNT(S.PRODUCT_ID) AS AMOUNT_BY_USER,
-							DENSE_RANK () OVER (PARTITION BY customer_id ORDER BY COUNT(S.PRODUCT_ID)DESC) R
-	
-								FROM [sales] S LEFT JOIN [menu] M 
-								ON S.PRODUCT_ID = M.PRODUCT_ID
+WITH "RANK-ORDER" AS 
+			(
+			SELECT
+				S.customer_id,
+				M.PRODUCT_NAME,
+				COUNT(S.PRODUCT_ID) AS AMOUNT_BY_USER,
+				DENSE_RANK () OVER (PARTITION BY customer_id ORDER BY COUNT(S.PRODUCT_ID)DESC) R
 
-							GROUP BY 
-							S.customer_id,
-							M.PRODUCT_NAME
+					FROM [sales] S LEFT JOIN [menu] M 
+					ON S.PRODUCT_ID = M.PRODUCT_ID
+
+				GROUP BY 
+				S.customer_id,
+				M.PRODUCT_NAME
 						)
-			SELECT 
-				customer_id,
-				PRODUCT_NAME,
-				AMOUNT_BY_USER
-				FROM "RANK-ORDER"
-				WHERE R = 1 
+						SELECT 
+							customer_id,
+							PRODUCT_NAME,
+							AMOUNT_BY_USER
+							FROM "RANK-ORDER"
+							WHERE R = 1 
 
 --------------------------------------------------------------------------------
 --(6) Which item was purchased first by the customer after they became a member?
@@ -177,7 +177,7 @@ SUM(menu.PRICE) AS TOTAL_SPENT
 
 
 --------------------------------------------------------------------------------
---(9) If each $1 spent equates to 10 points and sushi has a 2x points multiplier — how many points would each customer have?
+--(9) If each $1 spent equates to 10 points and sushi has a 2x points multiplier â€” how many points would each customer have?
 --------------------------------------------------------------------------------
 
 with "points" as 
