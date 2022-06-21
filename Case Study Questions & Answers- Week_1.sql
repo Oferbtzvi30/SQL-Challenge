@@ -67,6 +67,7 @@ SUM(M.PRICE) AS SPEND
 		on s.product_id = m.product_id
 
 		GROUP BY s.customer_id
+		ORDER BY 2 DESC
 
 --------------------------------------------------------------------------------
 --(2) How many days has each customer visited the restaurant?
@@ -77,6 +78,7 @@ COUNT(DISTINCT ORDER_DATE)
 		FROM [dbo].[sales]
 
 		GROUP BY customer_id
+		ORDER BY 2 DESC
 
 
 --------------------------------------------------------------------------------
@@ -223,15 +225,18 @@ sales.CUSTOMER_ID,
 COUNT(DISTINCT sales.product_id) AS UNIQUE_ITEM_AMOUNT,
 SUM(menu.PRICE) AS TOTAL_SPENT
 
-	FROM [dbo].[sales] sales	JOIN [dbo].[members] members
-			ON sales.CUSTOMER_ID = members.CUSTOMER_ID
-			JOIN [dbo].[menu] menu
-			ON sales.product_id = menu.product_id
+	FROM [dbo].[sales] sales	
+	JOIN [dbo].[members] members
+	ON sales.CUSTOMER_ID = members.CUSTOMER_ID
+	JOIN [dbo].[menu] menu
+	ON sales.product_id = menu.product_id
 
-				WHERE sales.ORDER_DATE < members.JOIN_DATE 
+	WHERE sales.ORDER_DATE < members.JOIN_DATE 
 
-				GROUP BY
-				sales.CUSTOMER_ID
+	GROUP BY
+	sales.CUSTOMER_ID
+	
+	ORDER BY 3 DESC
 
 
 --------------------------------------------------------------------------------
@@ -244,8 +249,9 @@ SELECT
 sales.customer_id,
 CASE WHEN menu.product_id = 1 THEN menu.price * 20 ELSE menu.price * 10 end as point
 
-	FROM [dbo].[sales] sales	JOIN [dbo].[menu] menu
-			ON sales.product_id = menu.product_id 
+	FROM [dbo].[sales] sales	
+	JOIN [dbo].[menu] menu
+	ON sales.product_id = menu.product_id 
 )
 select 
 customer_id,
@@ -254,6 +260,8 @@ from "points"
 
 group by 
 customer_id
+
+ORDER BY 2 DESC
 
 
 --------------------------------------------------------------------------------
