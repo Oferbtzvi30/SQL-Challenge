@@ -210,3 +210,88 @@ count(order_id) as volume_order
 -----------------------------------------------------------------------------
 
 
+---------------------------------------------------------
+-- (B) (1) How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)
+---------------------------------------------------------
+
+SELECT
+
+DATEPART(WEEK,registration_date) AS REGIST_WEEK,
+COUNT(*) AS RUNNERS
+		FROM [dbo].[runners]
+
+		GROUP BY 
+		DATEPART(WEEK,registration_date)
+
+---------------------------------------------------------
+-- (B) (2) What was the average time in minutes it took for each runner to arrive at the Pizza Runner
+--		   HQ to pickup the order?
+---------------------------------------------------------
+WITH "AVG_TIME"
+AS
+	(
+		SELECT  
+		R.runner_id,
+		DATEDIFF(MINUTE,C.order_time,R.pickup_time) AS DIFF
+				from #customer_orders C
+				JOIN #runner_orders R
+				ON C.order_id = R.order_iD
+
+				WHERE r.distance IS NOT NULL
+	)
+
+	SELECT runner_id,
+			AVG(DIFF) AS AVG_TIME_DEL
+			FROM AVG_TIME
+
+			GROUP BY 
+			runner_id
+
+			ORDER BY  2
+
+---------------------------------------------------------
+-- (B) (3) Is there any relationship between the number of pizzas and how long the order takes to prepare?
+---------------------------------------------------------
+	with relationship
+	as 
+	(
+	SELECT  
+			C.order_id,
+			COUNT(C.order_id) AS Number_of_Pizza,
+			C.order_time,
+			R.pickup_time,
+			DATEDIFF(MINUTE,C.order_time,R.pickup_time) AS DIFF
+		
+				from #customer_orders C
+				JOIN #runner_orders R
+				ON C.order_id = R.order_iD
+
+					WHERE r.distance IS NOT NULL
+					GROUP BY C.order_id,C.order_time,R.pickup_time
+		)
+
+		SELECT Number_of_Pizza,
+				AVG(DIFF) AS AVG_TIME_MAKE_PIZZA
+		
+		FROM relationship
+
+		GROUP BY Number_of_Pizza
+
+
+---------------------------------------------------------
+-- (B) (4) What was the average distance travelled for each customer?
+---------------------------------------------------------
+	SELECT  
+			C.customer_id,
+			AVG(R.distance) AS AVG_DIS
+
+				from #customer_orders C
+				JOIN #runner_orders R
+				ON C.order_id = R.order_iD
+
+		GROUP BY 
+		C.customer_id
+
+		ORDER BY 
+		2 DESC
+
