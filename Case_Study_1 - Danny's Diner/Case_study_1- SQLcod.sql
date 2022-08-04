@@ -60,13 +60,13 @@ CREATE TABLE menu (
 --(1) What is the total amount each customer spent at the restaurant?
 --------------------------------------------------------------------------------
 SELECT 
-s.customer_id,
-SUM(M.PRICE) AS SPEND
+a.customer_id,
+SUM(b.PRICE) AS SPEND
 
-		FROM [dbo].[sales] s join [dbo].[menu] m 
-		on s.product_id = m.product_id
+		FROM [dbo].[sales] a join [dbo].[menu] b 
+		on a.product_id = b.product_id
 
-		GROUP BY s.customer_id
+		GROUP BY a.customer_id
 		ORDER BY 2 DESC
 
 --------------------------------------------------------------------------------
@@ -74,12 +74,11 @@ SUM(M.PRICE) AS SPEND
 --------------------------------------------------------------------------------
 SELECT 
 customer_id,
-COUNT(DISTINCT ORDER_DATE) 
+COUNT(DISTINCT ORDER_DATE) as visit_amount
 		FROM [dbo].[sales]
 
 		GROUP BY customer_id
 		ORDER BY 2 DESC
-
 
 --------------------------------------------------------------------------------
 --(3) What was the first item from the menu purchased by each customer?
@@ -88,14 +87,14 @@ COUNT(DISTINCT ORDER_DATE)
 WITH "RANK-TABLE" AS 
 (
 		SELECT
-		S.customer_id,
-		S.ORDER_DATE,
-		S.PRODUCT_ID,
-		M.PRODUCT_NAME,
-		DENSE_RANK () OVER (PARTITION BY S.customer_id ORDER BY S.ORDER_DATE) R
+		a.customer_id,
+		a.ORDER_DATE,
+		a.PRODUCT_ID,
+		b.PRODUCT_NAME,
+		DENSE_RANK () OVER (PARTITION BY a.customer_id ORDER BY a.ORDER_DATE) R
 
-		FROM [sales] S LEFT JOIN [menu] M 
-		ON S.PRODUCT_ID = M.PRODUCT_ID
+		FROM [sales] a LEFT JOIN [menu] b 
+		ON a.PRODUCT_ID = b.PRODUCT_ID
 ) 
 
 SELECT 
@@ -118,14 +117,14 @@ WHERE R = 1
 WITH "ITEM" AS
 (
 SELECT
-	M.PRODUCT_NAME,
+	b.PRODUCT_NAME,
 	COUNT(*) AS AMOUNT
 		
-		FROM [sales] S LEFT JOIN [menu] M 
-		ON S.PRODUCT_ID = M.PRODUCT_ID
+		FROM [sales] a LEFT JOIN [menu] b 
+		ON a.PRODUCT_ID = b.PRODUCT_ID
 
 		GROUP BY 
-		M.PRODUCT_NAME
+		b.PRODUCT_NAME
 )
 SELECT * FROM "ITEM"
 WHERE AMOUNT = (SELECT MAX(AMOUNT) FROM "ITEM") 
@@ -139,24 +138,24 @@ WHERE AMOUNT = (SELECT MAX(AMOUNT) FROM "ITEM")
 WITH "RANK-ORDER" AS 
 			(
 			SELECT
-				S.customer_id,
-				M.PRODUCT_NAME,
-				COUNT(S.PRODUCT_ID) AS AMOUNT_BY_USER,
-				DENSE_RANK () OVER (PARTITION BY customer_id ORDER BY COUNT(S.PRODUCT_ID)DESC) R
+				a.customer_id,
+				b.PRODUCT_NAME,
+				COUNT(a.PRODUCT_ID) AS AMOUNT_BY_USER,
+				DENSE_RANK () OVER (PARTITION BY customer_id ORDER BY COUNT(a.PRODUCT_ID)DESC) R
 
-					FROM [sales] S LEFT JOIN [menu] M 
-					ON S.PRODUCT_ID = M.PRODUCT_ID
+					FROM [sales] a LEFT JOIN [menu] b 
+					ON a.PRODUCT_ID = b.PRODUCT_ID
 
 				GROUP BY 
-				S.customer_id,
-				M.PRODUCT_NAME
+				a.customer_id,
+				b.PRODUCT_NAME
 						)
 						SELECT 
 							customer_id,
 							PRODUCT_NAME,
 							AMOUNT_BY_USER
 							FROM "RANK-ORDER"
-							WHERE R = 1 
+							WHERE R = 1  
 
 --------------------------------------------------------------------------------
 --(6) Which item was purchased first by the customer after they became a member?
@@ -165,15 +164,15 @@ WITH "RANK-ORDER" AS
 WITH "FIRST-ORDER" AS 
 (
  SELECT 
-S.CUSTOMER_ID,
-M.JOIN_DATE, 
-S.ORDER_DATE,
-s.product_id,
-DENSE_RANK() OVER (PARTITION BY S.CUSTOMER_ID ORDER BY S.ORDER_DATE) AS R 
+a.CUSTOMER_ID,
+b.JOIN_DATE, 
+a.ORDER_DATE,
+a.product_id,
+DENSE_RANK() OVER (PARTITION BY a.CUSTOMER_ID ORDER BY a.ORDER_DATE) AS R 
 
-	FROM [dbo].[sales] S	JOIN [dbo].[members] M
-			ON S.CUSTOMER_ID = M.CUSTOMER_ID
-			WHERE S.ORDER_DATE >= M.JOIN_DATE 
+	FROM [dbo].[sales] a	JOIN [dbo].[members] b
+			ON a.CUSTOMER_ID = b.CUSTOMER_ID
+			WHERE a.ORDER_DATE >= b.JOIN_DATE 
 )
 
 SELECT 
@@ -184,7 +183,7 @@ B.product_name
 FROM "FIRST-ORDER" A 
  JOIN [dbo].[menu] B 
 	ON A.product_ID = B.product_ID
-WHERE R =1 
+WHERE R =1
 
 
 
@@ -195,15 +194,15 @@ WHERE R =1
 WITH "BEFORE-MEMBER" AS 
 (
  SELECT 
-S.CUSTOMER_ID,
-M.JOIN_DATE, 
-S.ORDER_DATE,
-s.product_id,
-DENSE_RANK() OVER (PARTITION BY S.CUSTOMER_ID ORDER BY S.ORDER_DATE DESC) AS R 
+a.CUSTOMER_ID,
+b.JOIN_DATE, 
+a.ORDER_DATE,
+a.product_id,
+DENSE_RANK() OVER (PARTITION BY a.CUSTOMER_ID ORDER BY a.ORDER_DATE DESC) AS R 
 
-	FROM [dbo].[sales] S	JOIN [dbo].[members] M
-			ON S.CUSTOMER_ID = M.CUSTOMER_ID
-			WHERE S.ORDER_DATE < M.JOIN_DATE 
+	FROM [dbo].[sales] a	JOIN [dbo].[members] b
+			ON a.CUSTOMER_ID = b.CUSTOMER_ID
+			WHERE a.ORDER_DATE < b.JOIN_DATE 
 )
 
 SELECT 
@@ -246,12 +245,12 @@ SUM(menu.PRICE) AS TOTAL_SPENT
 with "points" as 
 (
 SELECT 
-sales.customer_id,
-CASE WHEN menu.product_id = 1 THEN menu.price * 20 ELSE menu.price * 10 end as point
+a.customer_id,
+CASE WHEN b.product_id = 1 THEN b.price * 20 ELSE b.price * 10 end as point
 
-	FROM [dbo].[sales] sales	
-	JOIN [dbo].[menu] menu
-	ON sales.product_id = menu.product_id 
+	FROM [dbo].[sales] a	
+	JOIN [dbo].[menu] b
+	ON a.product_id = b.product_id 
 )
 select 
 customer_id,
