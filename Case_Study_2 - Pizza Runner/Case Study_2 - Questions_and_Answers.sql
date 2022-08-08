@@ -6,29 +6,27 @@
 -----------------------------------------------------------------------------
 -- (A) Clean Null values from customer_orders table
 -----------------------------------------------------------------------------
+
 DROP TABLE IF EXISTS #customer_orders;
-SELECT order_id, customer_id, pizza_id, 
-  CASE 
-    WHEN exclusions IS null OR exclusions LIKE 'null' THEN ' '
-    ELSE exclusions
-    END AS exclusions,
-  CASE 
-    WHEN extras IS NULL or extras LIKE 'null' THEN ' '
-    ELSE extras 
-    END AS extras, 
-  order_time
-INTO #customer_orders -- #I created a TEMP table
-FROM customer_orders;
+CREATE TABLE #customer_orders 
 
+ (order_id INTEGER,
+  customer_id INTEGER,
+  pizza_id INTEGER,
+  exclusions VARCHAR(4),
+  extras VARCHAR(4),
+  order_time DATETIME
+);
 
-ALTER TABLE #customer_orders
-ALTER COLUMN ORDER_TIME DATETIME;
+INSERT INTO #customer_orders SELECT order_id,customer_id,pizza_id,exclusions,extras,order_time FROM customer_orders;
 
-ALTER TABLE #customer_orders
-ALTER COLUMN extras varchar(max);
+-- Cleaning data -- 
+UPDATE #customer_orders SET
+exclusions = CASE exclusions WHEN 'NULL' THEN NULL ELSE exclusions END,
+extras = CASE extras WHEN 'NULL' THEN NULL ELSE extras END;
 
-ALTER TABLE #customer_orders
-ALTER COLUMN exclusions varchar(max);
+SELECT * FROM #customer_orders
+
 
 -----------------------------------------------------------------------------
 -- (B) Clean values from runner_orders table: In this table we will handle the values ​​in the columns (pickup_time,distance,duration,cancellation)
@@ -37,35 +35,28 @@ ALTER COLUMN exclusions varchar(max);
 -- (C) After cleaning and arranging the table, we will update the different columns according to the correct column type
 -----------------------------------------------------------------------------
 
-SELECT order_id, runner_id,
-  CASE 
-    WHEN pickup_time LIKE 'null' THEN ' '
-    ELSE pickup_time 
-    END AS pickup_time,
-  CASE 
-    WHEN distance LIKE 'null' THEN ' '
-    WHEN distance LIKE '%km' THEN TRIM('km' from distance) 
-    ELSE distance END AS distance,
-  CASE 
-    WHEN duration LIKE 'null' THEN ' ' 
-    WHEN duration LIKE '%mins' THEN TRIM('mins' from duration) 
-    WHEN duration LIKE '%minute' THEN TRIM('minute' from duration)        
-    WHEN duration LIKE '%minutes' THEN TRIM('minutes' from duration)       
-    ELSE duration END AS duration,
-  CASE 
-    WHEN cancellation IS NULL or cancellation LIKE 'null' THEN ''
-    ELSE cancellation END AS cancellation
-INTO #runner_orders
-FROM runner_orders;
+DROP TABLE IF EXISTS #runner_orders;
+CREATE TABLE #runner_orders 
 
-ALTER TABLE #runner_orders
-ALTER COLUMN pickup_time DATETIME;
+(
+  order_id INTEGER,
+  runner_id INTEGER,
+  pickup_time VARCHAR(19),
+  distance VARCHAR(7),
+  duration VARCHAR(10),
+  cancellation VARCHAR(23)
+);
 
-ALTER TABLE #runner_orders
-ALTER COLUMN distance FLOAT;
+INSERT INTO #runner_orders SELECT order_id,runner_id,pickup_time,distance,duration,cancellation FROM runner_orders;
 
-ALTER TABLE #runner_orders
-ALTER COLUMN duration INT;
+-- Cleaning data -- 
+UPDATE #runner_orders SET
+pickup_time = case pickup_time when 'null' then null else pickup_time end,
+distance  = case distance when 'null' then null else distance end,
+duration  = case duration when 'null' then null else duration end,
+cancellation = case cancellation when 'null' then null else cancellation end;
+
+SELECT * FROM #runner_orders
 
 -----------------------------------------------------------------------------
 -- (A) Pizza Metrics
