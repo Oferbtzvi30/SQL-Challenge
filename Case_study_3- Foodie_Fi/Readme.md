@@ -1,5 +1,5 @@
 # Case Study #3 - Foodie_Fi
-![alt text](https://user-images.githubusercontent.com/8weeksqlchallenge.com/images/case-study-designs/3.png)
+![plot](https://user-images.githubusercontent.com/8weeksqlchallenge.com/images/case-study-designs/3.png)
 
 
 ## Introduction:
