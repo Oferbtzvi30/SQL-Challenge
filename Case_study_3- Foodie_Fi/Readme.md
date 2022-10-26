@@ -1,5 +1,5 @@
 # Case Study #3 - Foodie_Fi
-([https://user-images.githubusercontent.com/92159133/182879647-07645bf9-e700-4362-a748-0b8c46bb7398.png](https://8weeksqlchallenge.com/images/case-study-designs/3.png))
+https://user-images.githubusercontent.com/92159133/182879647-07645bf9-e700-4362-a748-0b8c46bb7398.png
 https://8weeksqlchallenge.com/case-study-3/
 
 ## Introduction:
@@ -14,7 +14,7 @@ Danny has shared the data design for Foodie-Fi and also short descriptions on ea
 
 All datasets exist within the foodie_fi database schema - be sure to include this reference within your SQL scripts as you start exploring the data and answering the case study questions.
 
-![image]([https://user-images.githubusercontent.com/92159133/182879998-20e77dce-ce96-46c8-b75c-d5b9cadb150c.png](https://8weeksqlchallenge.com/images/case-study-3-erd.png))
+[https://user-images.githubusercontent.com/92159133/182879998-20e77dce-ce96-46c8-b75c-d5b9cadb150c.png]
 
 
 
