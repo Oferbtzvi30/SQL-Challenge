@@ -1,4 +1,4 @@
-# Case_Study_1 - Danny's Diner
+# Case Study # 1 - Danny's Diner
 ![CaseStudy_1](https://user-images.githubusercontent.com/92159133/182846462-8c00ff9b-8ba1-499f-abe7-4a3619fa0fbb.png)
 
 ## Introduction:
