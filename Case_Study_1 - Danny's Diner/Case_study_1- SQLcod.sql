@@ -59,15 +59,23 @@ CREATE TABLE menu (
 --------------------------------------------------------------------------------
 --(1) What is the total amount each customer spent at the restaurant?
 --------------------------------------------------------------------------------
-SELECT 
-a.customer_id,
-SUM(b.PRICE) AS SPEND
+**Query #1**
 
-		FROM [dbo].[sales] a join [dbo].[menu] b 
-		on a.product_id = b.product_id
+    SELECT 
+    a.customer_id,
+    SUM(b.PRICE) AS SPEND
+    
+    		FROM dannys_diner.sales a join dannys_diner.menu b 
+    		on a.product_id = b.product_id
+    
+    		GROUP BY a.customer_id
+    		ORDER BY 2 DESC;
 
-		GROUP BY a.customer_id
-		ORDER BY 2 DESC
+| customer_id | spend |
+| ----------- | ----- |
+| A           | 76    |
+| B           | 74    |
+| C           | 36    |
 
 --------------------------------------------------------------------------------
 --(2) How many days has each customer visited the restaurant?
